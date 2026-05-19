@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Add a blog to your app in under 5 minutes using [Pepa](https://pepa.dev)
 
-## Getting Started
+## What is Pepa?
 
-First, run the development server:
+Pepa is a hosted headless blogging backend that gives you posts, authors, categories, tags, and SEO fields through a simple REST API.
+
+## What this example includes
+
+- Next.js 16 app router project with Tailwind CSS.
+- Home page with a centered CTA button linking to `/blog`.
+- Blog list page at `app/blog/page.tsx` that fetches posts from Pepa and renders them as cards.
+- Reusable post card component in `components/cards/post.tsx`.
+- Post detail page at `app/blog/[slug]/page.tsx` with:
+  - centered title and published date
+  - featured image
+  - centered category badges
+  - rendered HTML content
+  - small centered author card
+  - top-left back button to `/blog`
+- Light-only styling and Tailwind-based UI.
+
+## Environment variables
+
+Copy the example file and set your Pepa values:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then set:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `ORGANI_API_KEY` — your Pepa API key
+- `ORGANI_BLOG_SLUG` — the slug of the blog you want to render
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Example `.env.example`:
 
-## Learn More
+```env
+ORGANI_API_KEY=organi_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+ORGANI_BLOG_SLUG=your-blog-slug
+```
 
-To learn more about Next.js, take a look at the following resources:
+## How the integration works
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Blog list page
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The list page fetches from Pepa using:
 
-## Deploy on Vercel
+```ts
+https://pepa.dev/api/v1/posts?blogSlug=${process.env.ORGANI_BLOG_SLUG}
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+It renders each post using `components/cards/post.tsx`, including:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- featured image
+- title
+- excerpt
+- published date
+- author name
+- blog name
+- categories/tags count
+- `Read more` button linking to the post detail page
+
+### Post detail page
+
+The detail page fetches a single post using:
+
+```ts
+https://pepa.dev/api/v1/post?blogSlug=${process.env.ORGANI_BLOG_SLUG}&postSlug=${slug}
+```
+
+It renders:
+
+- a back button to `/blog`
+- published date and title centered at the top
+- featured image if present
+- centered category badges
+- HTML content from `htmlContent`
+- a small author card with avatar, name, and bio
+
+## Run locally
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Then open `http://localhost:3000`.
+
+## Project files to review
+
+- `app/page.tsx` — homepage button to `/blog`
+- `app/blog/page.tsx` — blog list server component
+- `components/cards/post.tsx` — post card component with featured image support
+- `app/blog/[slug]/page.tsx` — post detail page layout and data fetching
+- `app/globals.css` — Tailwind import and light mode styling
+
+## Notes
+
+- Uses the Next.js app router and server-side data fetching.
+- The detail page awaits `params` because it can be a promise in the app router.
+- This example uses plain `img` tags for featured images; you can switch to `next/image` if needed.
+- Dark mode support is intentionally removed for a simple light UI.
